@@ -32,4 +32,4 @@
 
 - [Paper](https://github.com/zhanwen/MathModel)
 
-  
+- [latex常用](https://www.latexstudio.net/hulatex/package/maths-1.htm)
