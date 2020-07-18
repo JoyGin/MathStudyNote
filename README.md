@@ -28,3 +28,4 @@
 - [Paper](https://github.com/zhanwen/MathModel)
 - [latex常用](https://www.latexstudio.net/hulatex/package/maths-1.htm)
 - [豆瓣评分靠谱吗](https://github.com/cqcn1991/movie-compare)
+- [数据可视化](https://wentu.io/my#/lib)
