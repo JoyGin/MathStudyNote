@@ -5,3 +5,5 @@ Qi/Project/Movie/analysis
 Qi/Project/Movie/data/DbTop250.csv
 Qi/Project/Movie/MovieAnalysis/data/DMSC.csv
 Qi/Project/Movie/MovieAnalysis/checkpoints
+Qi/Project/Movie/TMDBAnalysis/data
+Qi/Project/Movie/MovieAnalysis/data

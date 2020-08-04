@@ -1,10 +1,12 @@
+import sys
+sys.path.append('.')
 from util.readData import readData
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import TfidfVectorizer
 from tqdm import tqdm
 import re
 import jieba
-
+import pickle
 class preprocess:
     def __init__(self):
 
@@ -74,6 +76,8 @@ class preprocess:
         train_vec_data = vectorizer.fit_transform(train_data)
 
         test_vec_data = vectorizer.transform(test_data)
+
+        pickle.dump(vectorizer,open("data/vectorizer.pickle","wb"))
         # print(vectorizer.get_feature_names()[:10])
         return train_vec_data, test_vec_data, train_labels, test_labels
 
