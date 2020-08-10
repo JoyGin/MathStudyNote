@@ -12,7 +12,9 @@ class analysis(object):
         #print(df.info)
         self.t_to_np()
         self.len_map()
-    
+        self.cal_prim()
+
+
     def scatter_xy(self):
         np_df = self.np_df
         plt.figure(figsize=(10,10))
@@ -24,6 +26,8 @@ class analysis(object):
             t_x, t_y = float(np_df[i,0]) + 0.000001, float(np_df[i, 1]) + 0.0003
             plt.annotate(str(i), xy = (np_df[i,0], np_df[i, 1]), xytext = (t_x, t_y))
 
+
+        plt.plot(np_df[self.path, 0], np_df[self.path, 1])
         #plt.colorbar()
         plt.grid(True)
         plt.xlabel('经度')
@@ -110,15 +114,35 @@ class analysis(object):
                     closedge[i]['lowcost'] = self.len_np[next_point, i]
             
             prior.append(next_point)
-        print(total_cos)
-        print(len(prior))
-        print(prior)
+        prior.append(start_site)
+        total_cos = total_cos + self.len_np[prior[-1], start_site]
+
+        return prior, total_cos
+        #print(total_cos)
+        #print(len(prior))
+        #print(prior)
+    
+    def cal_prim(self):
+        all_path = []
+        all_cos  = []
+        for i in range(self.len_np.shape[0]):
+            prior,total_cos = self.prim(i)
+            all_path.append(prior)
+            all_cos.append(total_cos)
         
+        all_path = np.array(all_path, dtype=np.int)
+        all_cos  = np.array(all_cos, dtype=np.float)
+        sm_start = np.argsort(all_cos)[0]
+        #print(sm_start)
+        path     = all_path[sm_start]
+        cos      = all_cos[sm_start]
 
-        
+        print(sorted(all_cos))
+        print('The lowest start site is', sm_start)
+        print('The path  is ',path)
+        print('The cost is', cos)
 
-
-
+        self.path = path
 
 
 
@@ -126,5 +150,5 @@ class analysis(object):
 if __name__ == '__main__':
     ana = analysis('data/Q1.xlsx')
     #ana.len_map()
-    ana.prim(1)
-    ana.prim(0)
+    ana.scatter_xy()
+    
