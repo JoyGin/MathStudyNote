@@ -12,7 +12,9 @@ class analysis(object):
         #print(df.info)
         self.t_to_np()
         self.len_map()
+        self.cal_k_cluster()
         self.cal_k_mean_prim()
+        self.scatter_k_prim()
         #self.cal_prim()
 
     @property
@@ -31,6 +33,11 @@ class analysis(object):
     @property
     def get_all_cos(self):
         return self.all_cos
+
+    
+    @property
+    def get_k_cluster(self):
+        return self.index_cluster
     
 
 
@@ -67,23 +74,7 @@ class analysis(object):
 
     def scatter_k_mean(self):
         np_df   = self.np_df
-        dataSet = np_df[1:]
-
-        while True:
-            centroids, clusterAssment = kMeans(dataSet, 4)
-            size = np.unique(clusterAssment[:, 0]).shape[0]
-            if size == 4:
-                break
-
-
-        index_cluster = []
-
-        for k in range(4):
-            k_cluster = []
-            for i in range(clusterAssment.shape[0]):
-                if clusterAssment[i, 0] == k:
-                    k_cluster.append(i + 1)
-            index_cluster.append(k_cluster)
+        index_cluster = self.index_cluster
 
 
         plt.figure(figsize=(10,10))
@@ -125,7 +116,7 @@ class analysis(object):
         self.len_map = len_np
     
 
-    def cal_k_mean_prim(self,):
+    def cal_k_cluster(self):
         np_df   = self.np_df
         len_map = self.len_map
         dataSet = np_df[1:]
@@ -146,7 +137,12 @@ class analysis(object):
                     k_cluster.append(i + 1)
             index_cluster.append(k_cluster)
         
+        self.index_cluster = index_cluster
 
+    def cal_k_mean_prim(self,):
+       
+        index_cluster = self.index_cluster
+        len_map       = self.len_map
         all_path = []
         all_cos  = []
         for k in range(len(index_cluster)):
@@ -179,8 +175,38 @@ class analysis(object):
 
     
     def scatter_k_prim(self,):
+        np_df         = self.np_df
+        index_cluster = self.index_cluster
+        all_path      = self.all_path
+
+        plt.figure(figsize=(10,10))
+        plt.scatter(np_df[0,0], np_df[0,1], color = 'r',marker ='o')
+        plt.scatter(np_df[index_cluster[0] , 0], np_df[index_cluster[0] , 1], color = 'blue',marker ='o')
+        plt.scatter(np_df[index_cluster[1] , 0], np_df[index_cluster[1] , 1], color = 'green',marker ='o')
+        plt.scatter(np_df[index_cluster[2] , 0], np_df[index_cluster[2] , 1], color = 'cyan',marker ='o')
+        plt.scatter(np_df[index_cluster[3] , 0], np_df[index_cluster[3] , 1], color = 'magenta',marker ='o')
+        
+        '''
+        for i in range(centroids.shape[0]):
+            plt.scatter(centroids[i, 0], centroids[i,1] , color = 'black',marker ='o')
+            t_x, t_y = float(centroids[i,0]) + 0.0003, float(centroids[i, 1]) - 0.0003
+            plt.annotate('k_' + str(i), xy = (centroids[i,0], centroids[i, 1]), xytext = (t_x, t_y))
+
+        '''
+        for i in range(30):
+            t_x, t_y = float(np_df[i,0]) - 0.0006, float(np_df[i, 1]) - 0.0001
+            plt.annotate(str(i), xy = (np_df[i,0], np_df[i, 1]), xytext = (t_x, t_y))
         
 
+        for i in range(len(all_path)):
+            plt.plot(np_df[all_path[i], 0], np_df[all_path[i], 1])
+
+        #plt.colorbar()
+        plt.grid(True)
+        plt.xlabel('经度')
+        plt.ylabel('纬度')
+        plt.savefig('k_prim.png')
+        plt.show()
 
 if __name__ == '__main__':
     ana = analysis('data/Q1.xlsx')
