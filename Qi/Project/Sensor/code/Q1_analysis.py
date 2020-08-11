@@ -12,6 +12,7 @@ class analysis(object):
         #print(df.info)
         self.t_to_np()
         self.len_map()
+        self.cal_k_mean_prim()
         #self.cal_prim()
 
     @property
@@ -22,6 +23,17 @@ class analysis(object):
     @property
     def get_np_df(self):
         return self.np_df
+    
+    @property
+    def get_all_path(self):
+        return self.all_path
+    
+    @property
+    def get_all_cos(self):
+        return self.all_cos
+    
+
+
 
     def scatter_xy(self, path = None):
         np_df = self.np_df
@@ -111,15 +123,75 @@ class analysis(object):
         #len1 = self.haversine(120.70051409,36.38276987, 120.69986731, 36.37079794)
         #print(len_np)
         self.len_map = len_np
+    
+
+    def cal_k_mean_prim(self,):
+        np_df   = self.np_df
+        len_map = self.len_map
+        dataSet = np_df[1:]
+
+        while True:
+            centroids, clusterAssment = kMeans(dataSet, 4)
+            size = np.unique(clusterAssment[:, 0]).shape[0]
+            if size == 4:
+                break
+
+
+        index_cluster = []
+
+        for k in range(4):
+            k_cluster = [0]
+            for i in range(clusterAssment.shape[0]):
+                if clusterAssment[i, 0] == k:
+                    k_cluster.append(i + 1)
+            index_cluster.append(k_cluster)
+        
+
+        all_path = []
+        all_cos  = []
+        for k in range(len(index_cluster)):
+            print('The calculation of cluster:', k)
+            k_map_len = np.zeros((len(index_cluster[k]), len(index_cluster[k])) ,dtype=np.float)
+            index_x = 0
+
+            for i in index_cluster[k]:
+                index_y = 0
+                for j in index_cluster[k]:
+                    k_map_len[index_x, index_y] = len_map[i,j]
+                    index_y = index_y + 1
+                index_x = index_x + 1
+
+
+            path,cos = cal_prim(k_map_len)
+            print('The cos is ', cos)
+            all_cos.append(cos)
+            #print(k_map_len.shape)
+            # 把path转变为大图的path
+            c_to_path = []
+            for i in path:
+                c_to_path.append(index_cluster[k][i])
+            print('The path is',c_to_path)
+            all_path.append(c_to_path)
+        #print(all_path)
+
+        self.all_path = all_path
+        self.all_cos  = all_cos
+
+    
+    def scatter_k_prim(self,):
+        
 
 
 if __name__ == '__main__':
     ana = analysis('data/Q1.xlsx')
     #ana.len_map()
     #ana.scatter_xy()
+    #map_len = ana.get_len_map
     #cal_prim(map_len)
 
     #ana.scatter_k_mean()
+
+    
 
 
    

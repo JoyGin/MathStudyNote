@@ -16,7 +16,9 @@ def haversine(lon1, lat1, lon2, lat2):
     dlat = lat2 - lat1 
     a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
     c = 2 * asin(sqrt(a)) 
-    r = 6371 # 地球平均半径，单位为公里
+    r = 6371 # 地球平均半径
+
+    # 乘以一千是为了把单位转化为米
     return c * r * 1000
 
 
@@ -82,9 +84,9 @@ def cal_prim(map_len):
     cos      = all_cos[sm_start]
 
     #print(sorted(all_cos))
-    print('The lowest start site is', sm_start)
-    print('The path  is ',path)
-    print('The cost is', cos)
+    #print('The lowest start site is', sm_start)
+    #print('The path  is ',path)
+    #print('The cost is', cos)
 
     return path, cos
 
@@ -109,7 +111,7 @@ def randCent(dataSet,k):
          [120.70000861 , 36.37696267],
          [120.69710952 , 36.37223663]],dtype=np.float
     )
-    print(centroids)
+    #print(centroids)
     return centroids  
 
 
