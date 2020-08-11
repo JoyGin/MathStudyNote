@@ -92,6 +92,7 @@ def cal_prim(map_len):
 
 # 构建簇的质心
 def randCent(dataSet,k):
+    '''
     n         = np.shape(dataSet)[1]
     centroids = np.mat(np.zeros((k,n)))
 
@@ -101,19 +102,38 @@ def randCent(dataSet,k):
         minJ           = np.min(dataSet[:,j])
         rangeJ         = float(np.max(dataSet[:,j]) - minJ)
         centroids[:,j] = minJ + rangeJ * np.random.rand(k,1)
-
+    '''
+    centroids = np.array(
+        [[120.69478412 ,36.37505913],
+         [120.70522949 , 36.38363639],
+         [120.70000861 , 36.37696267],
+         [120.69710952 , 36.37223663]],dtype=np.float
+    )
+    print(centroids)
     return centroids  
 
 
 
 def kMeans(dataSet, k, createCent = randCent):
 
+    '''
+        @params：
+            dataSet   : (x,y),用于计算距离
+            k         ：聚类的数量
+            creatCent : 用于随机初始化聚类的中心
+        
+        @returns:
+            centroids      : 聚类的k个中心，为(x,y)
+            clusterAssment : 每个点属于哪个聚类，以及距离聚类中心的聚类（type, distance）
+    
+    '''
+
     # 获得数据的组数
     dataShape      = np.shape(dataSet)[0]
 
     # 生成一个m行,2列的矩阵,用来存每个数据到簇的距离,以及对应簇的类型
     # 第一个值是簇的类型，第二个值是距离
-    clusterAssment = np.mat(np.zeros((dataShape,2)))
+    clusterAssment = np.zeros((dataShape,2))
 
     # 获得随机质心
     centroids      = createCent(dataSet,k)
@@ -159,7 +179,7 @@ def kMeans(dataSet, k, createCent = randCent):
 
             # https: // blog.csdn.net / xinjieyuan / article / details / 81477120
             # nonzero返回使括号中为True的下标
-            cs = np.nonzero(clusterAssment[:, 0].A == cent)[0]
+            cs = np.nonzero(clusterAssment[:, 0] == cent)[0]
 
             # print(cs)
             ptsInClust = dataSet[cs]
