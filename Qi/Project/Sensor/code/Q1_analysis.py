@@ -12,9 +12,10 @@ class analysis(object):
         #print(df.info)
         self.t_to_np()
         self.len_map()
-        self.cal_k_cluster()
-        self.cal_k_mean_prim()
-        self.scatter_k_prim()
+        self.cal_one_car()
+        #self.cal_k_cluster()
+        #self.cal_k_mean_prim()
+        #self.scatter_k_prim()
         #self.cal_prim()
 
     @property
@@ -40,6 +41,11 @@ class analysis(object):
         return self.index_cluster
     
 
+    def cal_one_car(self):
+        path,cos = cal_prim(self.len_map)
+        print('path:',path)
+        self.scatter_xy(path)
+
 
 
     def scatter_xy(self, path = None):
@@ -59,7 +65,7 @@ class analysis(object):
         plt.grid(True)
         plt.xlabel('经度')
         plt.ylabel('纬度')
-        plt.savefig('sensor_sit.png')
+        plt.savefig('img/sensor_sit.png')
         plt.show()
 
     
@@ -99,7 +105,7 @@ class analysis(object):
         plt.grid(True)
         plt.xlabel('经度')
         plt.ylabel('纬度')
-        plt.savefig('k_mean_cluster.png')
+        plt.savefig('img/k_mean_cluster.png')
         plt.show()
 
 
@@ -205,7 +211,7 @@ class analysis(object):
         plt.grid(True)
         plt.xlabel('经度')
         plt.ylabel('纬度')
-        plt.savefig('k_prim.png')
+        plt.savefig('img/k_prim.png')
         plt.show()
 
 if __name__ == '__main__':

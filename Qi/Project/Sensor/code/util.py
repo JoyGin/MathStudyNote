@@ -1,6 +1,6 @@
 import numpy as np
 from math import radians, cos, sin, asin, sqrt
-
+from TSP_GA import TSP
 
 # 经度1，纬度1，经度2，纬度2 （十进制度数）
 def haversine(lon1, lat1, lon2, lat2): 
@@ -47,10 +47,10 @@ def prim(start_site, map_len):
     
     prior = []
     prior.append(start_site)
-    total_cos = 0
+    total_cos = 0.0
     for i in range(map_len.shape[0] - 1):
         next_point = Minmum(closedge)
-        total_cos  = total_cos + map_len[prior[-1],next_point]
+        total_cos += map_len[prior[-1],next_point]
         closedge[next_point]['lowcost'] = 0
         #print(vextex[closedge[next_point]['prior']], '--->', vextex[next_point])
         for i in range(map_len.shape[0]):
@@ -59,9 +59,10 @@ def prim(start_site, map_len):
                 closedge[i]['lowcost'] = map_len[next_point, i]
         
         prior.append(next_point)
+    total_cos +=  map_len[prior[-1], start_site]
     prior.append(start_site)
-    total_cos = total_cos + map_len[prior[-1], start_site]
-
+    total_cos +=  map_len[prior[-1], start_site]
+    #total_cos = total_cos + map_len[prior[-1], start_site]
     return prior, total_cos
     #print(total_cos)
     #print(len(prior))
@@ -79,7 +80,6 @@ def cal_prim(map_len):
     all_path = np.array(all_path, dtype=np.int)
     all_cos  = np.array(all_cos, dtype=np.float)
     sm_start = np.argsort(all_cos)[0]
-    #print(sm_start)
     path     = all_path[sm_start]
     cos      = all_cos[sm_start]
 
@@ -87,7 +87,13 @@ def cal_prim(map_len):
     #print('The lowest start site is', sm_start)
     #print('The path  is ',path)
     #print('The cost is', cos)
+    prim_path = [i for i in path[0:-1]]
+    print('prim_path:',prim_path)
+    print('prim_path_cos:', cos)
 
+    tsp = TSP(map_len,prim_path = prim_path)
+    path, cos = tsp.run(20000)
+    path.append(path[0])
     return path, cos
 
 
