@@ -12,8 +12,8 @@ class TSP(object):
             self.lifeCount = aLifeCount
             if prim_path:
                   self.prim_path = prim_path
-                  self.ga = GA(aCrossRate = 0.9, 
-                        aMutationRage = 0.111, 
+                  self.ga = GA(aCrossRate = 0.85, 
+                        aMutationRage = 0.1, 
                         aLifeCount = self.lifeCount, 
                         aGeneLenght = self.mapLen.shape[0], 
                         aMatchFun = self.matchFun(),
@@ -110,8 +110,10 @@ class TSP(object):
                   distance = self.distance(self.ga.best.gene)
                   
                   #print(self.ga.best.gene)
-                  print (("%d : %f") % (self.ga.generation, distance))
+                  #print (("%d : %f") % (self.ga.generation, distance))
                   n -= 1
+                  if n % 500 == 0:
+                        print (("%d : %f") % (self.ga.generation, distance))
             best_path = self.ga.best.gene
             best_cos =  self.distance(self.ga.best.gene)
             return best_path, best_cos

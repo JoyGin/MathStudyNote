@@ -8,15 +8,31 @@ plt.rcParams['axes.unicode_minus']=False #用来正常显示负号
 
 class analysis(object):
     def __init__(self, data_path):
-        self.df = pd.read_excel(data_path)
+        self.init(data_path)
         #print(df.info)
+        
+    
+    def init(self,data_path = 'data/Q1.xlsx'):
+        self.df = pd.read_excel(data_path)
         self.t_to_np()
         self.len_map()
+
+    def run_one_car(self):
         self.cal_one_car()
-        #self.cal_k_cluster()
-        #self.cal_k_mean_prim()
-        #self.scatter_k_prim()
-        #self.cal_prim()
+
+    def run_k_car(self):
+        self.cal_k_cluster()
+        self.cal_k_mean_prim()
+
+        for num in range(len(self.all_cluster_path[0])):
+
+            all_path = []
+            for num_cluster in range(len(self.all_cluster_path)):
+                #print(num_cluster)
+                all_path.append(self.all_cluster_path[num_cluster][num])
+                #print(all_path)
+            self.scatter_k_prim(all_path = all_path, num = num)
+
 
     @property
     def get_len_map(self):
@@ -43,12 +59,13 @@ class analysis(object):
 
     def cal_one_car(self):
         path,cos = cal_prim(self.len_map)
-        print('path:',path)
-        self.scatter_xy(path)
+        for i in range(len(path)):
+            print('path_',i,':',path[i])
+            self.scatter_xy(path[i], i)
 
 
 
-    def scatter_xy(self, path = None):
+    def scatter_xy(self, path = None, num = 0):
         np_df = self.np_df
         plt.figure(figsize=(10,10))
         plt.scatter(np_df[0,0], np_df[0,1], color = 'r',marker ='o')
@@ -65,7 +82,7 @@ class analysis(object):
         plt.grid(True)
         plt.xlabel('经度')
         plt.ylabel('纬度')
-        plt.savefig('img/sensor_sit.png')
+        plt.savefig('img/sensor_site_'+ str(num)+'.png')
         plt.show()
 
     
@@ -149,13 +166,11 @@ class analysis(object):
        
         index_cluster = self.index_cluster
         len_map       = self.len_map
-        all_path = []
-        all_cos  = []
+        all_cluster_path = []
+        all_cluster_cos  = []
         for k in range(len(index_cluster)):
-            print('The calculation of cluster:', k)
             k_map_len = np.zeros((len(index_cluster[k]), len(index_cluster[k])) ,dtype=np.float)
             index_x = 0
-
             for i in index_cluster[k]:
                 index_y = 0
                 for j in index_cluster[k]:
@@ -163,27 +178,31 @@ class analysis(object):
                     index_y = index_y + 1
                 index_x = index_x + 1
 
-
+            print('The calculation of cluster:', k)
             path,cos = cal_prim(k_map_len)
-            print('The cos is ', cos)
-            all_cos.append(cos)
-            #print(k_map_len.shape)
-            # 把path转变为大图的path
-            c_to_path = []
-            for i in path:
-                c_to_path.append(index_cluster[k][i])
-            print('The path is',c_to_path)
-            all_path.append(c_to_path)
-        #print(all_path)
-
-        self.all_path = all_path
-        self.all_cos  = all_cos
+            all_cluster_cos.append(cos)
+            all_path = []
+            index = 0
+            for one_path in path:
+                # 把path转变为大图的path
+                c_to_path = []
+                for i in one_path:
+                    c_to_path.append(index_cluster[k][i])
+                print('path_to_all_map',index,':', c_to_path)
+                print('path_cos:', cos[index])
+                index += 1
+                all_path.append(c_to_path)
+        
+            all_cluster_path.append(all_path)
+            
+        self.all_cluster_path = all_cluster_path
+        self.all_cluster_cos  = all_cluster_cos
 
     
-    def scatter_k_prim(self,):
+    def scatter_k_prim(self, all_path = None ,num = 0):
         np_df         = self.np_df
         index_cluster = self.index_cluster
-        all_path      = self.all_path
+        all_path      = all_path
 
         plt.figure(figsize=(10,10))
         plt.scatter(np_df[0,0], np_df[0,1], color = 'r',marker ='o')
@@ -211,17 +230,13 @@ class analysis(object):
         plt.grid(True)
         plt.xlabel('经度')
         plt.ylabel('纬度')
-        plt.savefig('img/k_prim.png')
+        plt.savefig('img/k_alg_'+ str(num) +'.png')
         plt.show()
 
 if __name__ == '__main__':
     ana = analysis('data/Q1.xlsx')
-    #ana.len_map()
-    #ana.scatter_xy()
-    #map_len = ana.get_len_map
-    #cal_prim(map_len)
-
-    #ana.scatter_k_mean()
+    #ana.run_one_car()
+    ana.run_k_car()
 
     
 

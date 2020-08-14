@@ -70,31 +70,49 @@ def prim(start_site, map_len):
 
 
 def cal_prim(map_len):
+
+    
     all_path = []
     all_cos  = []
+
+    #----------------------------------------------------------------
+    #prim
+    all_prim_path = []
+    all_prim_cos  = []
     for i in range(map_len.shape[0]):
         prior,total_cos = prim(i, map_len)
-        all_path.append(prior)
-        all_cos.append(total_cos)
+        all_prim_path.append(prior)
+        all_prim_cos.append(total_cos)
     
-    all_path = np.array(all_path, dtype=np.int)
-    all_cos  = np.array(all_cos, dtype=np.float)
-    sm_start = np.argsort(all_cos)[0]
-    path     = all_path[sm_start]
-    cos      = all_cos[sm_start]
+    all_prim_path = np.array(all_prim_path, dtype=np.int)
+    all_prim_cos  = np.array(all_prim_cos, dtype=np.float)
+    sm_start = np.argsort(all_prim_cos)[0]
 
-    #print(sorted(all_cos))
-    #print('The lowest start site is', sm_start)
-    #print('The path  is ',path)
-    #print('The cost is', cos)
-    prim_path = [i for i in path[0:-1]]
+    prim_path     = [x for x in all_prim_path[sm_start]]
+    prim_cos      = all_prim_cos[sm_start]
+
+    all_path.append(prim_path)
+    all_cos.append(prim_cos)
+
+
+    #-------------------------------------------------------------------------
+    #GA
+    prim_tsp_path = [i for i in prim_path[0:-1]]
+    tsp = TSP(map_len,prim_path = prim_tsp_path)
+
+    ga_path, ga_cos = tsp.run(1000)
+    ga_path.append(ga_path[0])
+    
+    all_path.append(ga_path)
+    all_cos.append(ga_cos)
+
+
     print('prim_path:',prim_path)
-    print('prim_path_cos:', cos)
+    print('prim_path_cos:', prim_cos)
+    print('prim_path->ga_path:',ga_path)
+    print('prim_path_cos->ga_cos:', ga_cos)
 
-    tsp = TSP(map_len,prim_path = prim_path)
-    path, cos = tsp.run(20000)
-    path.append(path[0])
-    return path, cos
+    return all_path, all_cos
 
 
 
