@@ -4,8 +4,10 @@ import pandas as pd
 from math import radians, cos, sin, asin, sqrt
 import sys
 sys.path.append('.')
-
+from sklearn import preprocessing   
 from model.k_mean_3 import kMeans
+from data_2_analysis import haversine
+from data_1_analysis import normalization
 
 class analysis_3:
 
@@ -16,6 +18,11 @@ class analysis_3:
     def init(self):
         self.read_data()
         self.df_site_to_np()
+
+        self.pred_y()
+        self.cal_residual()
+        self.cal_t()
+        self.cal_new_q()
 
     @property
     def get_site_np(self):
@@ -67,10 +74,10 @@ class analysis_3:
         if self.index_cluster is None:
             self.cal_k_cluster()
 
-        site_np = self.data_3_site_np
+        site_np       = self.data_3_site_np
         index_cluster = self.index_cluster
-        centers = self.k_centers
-        print(len(index_cluster))
+        centers       = self.k_centers
+        #print(len(index_cluster))
         plt.figure(figsize=(10,10))
     
 
@@ -87,7 +94,119 @@ class analysis_3:
         plt.show()
 
 
+    def save_cluster(self):
+        if self.index_cluster is None:
+            self.cal_k_cluster()
+
+        data_to_save = dict()
+
+        # 经度
+        longitude = []
+
+        # 纬度
+        latitude  = []
+
+        cluster_i = []
+
+        site_np       = self.data_3_site_np
+        index_cluster = self.index_cluster
+
+        for i in range(len(index_cluster)):
+            for j in index_cluster[i]:
+                longitude.append(site_np[j,0])
+                latitude.append(site_np[j,1])
+                cluster_i.append(i)
+
+        data_to_save['longitude'] = longitude
+        data_to_save['latitude']  = latitude 
+        data_to_save['cluster']   = cluster_i
+
+        data_to_save = pd.DataFrame(data_to_save)
+        data_to_save.to_excel('data/cluster.xls')
     
+    def cal_residual(self):
+        y_true  = self.data_3_site_np[:,0]
+        x_true  = self.data_3_site_np[:,1]
+
+        y_pred = self.y_pred
+        residual_y   = y_pred - y_true
+
+        residual_n_y = normalization(residual_y)
+        residual_n_x = normalization(x_true)
+
+        self.residual_n_y = residual_n_y
+        self.residual_n_x = residual_n_x
+        
+        mx_resi = list()
+        for i in residual_n_y:
+            if i != 0. and i != 1:
+                mx_resi.append(i)
+
+
+        mx_resi = np.array(mx_resi)
+        #print(mx_resi)
+        print('residual_max:',np.max(mx_resi))
+        print('residual_min:',np.min(mx_resi))
+    
+    def pred_y(self):
+        site_np = self.data_3_site_np
+        x_list  = site_np[:,1]
+        y_pred  = []
+        for x in x_list:
+            y_p = 4.9303 * x + 0.2147
+            y_pred.append(y_p)
+        y_pred = np.array(y_pred)
+        self.y_pred = y_pred
+    
+
+    def cal_t(self):
+        all_t = []
+        rand_t = 1000.
+        for i in range(self.data_3_site_np.shape[0]):
+            num_point = 0
+            for j in range(self.data_3_site_np.shape[0]):
+                if i == j:
+                    continue
+                length = haversine(self.data_3_site_np[i,0], self.data_3_site_np[i,1], self.data_3_site_np[j,0],self.data_3_site_np[j,1])
+                #print(length)
+                if length < rand_t:
+                    num_point += 1
+            all_t.append(num_point)
+
+        all_t = np.array(all_t)
+        self.all_t = all_t
+        print('max_t:',np.max(all_t))
+        print('min_t:',np.min(all_t))
+    
+
+    def cal_new_q(self): 
+        lam          = 0.6
+        residual_n_y = self.residual_n_y  
+
+        max_t = np.max(self.all_t)
+        min_t = np.min(self.all_t)
+
+        mx_resi = list()
+        for i in residual_n_y:
+            if i != 1 and i != 0:
+                mx_resi.append(i)
+
+        mx_resi = np.array(mx_resi)
+        max_resi = np.max(mx_resi)
+        min_resi = np.min(mx_resi)
+
+        new_money = []
+        
+        for i in range(len(residual_n_y)):
+            q_i = 65 + (30 * (self.all_t[i] - min_t) / (max_t - min_t))
+            p_i = 65 + (30 * (residual_n_y[i] - min_resi) / (max_resi - min_resi))
+
+            Q_new = lam * p_i + (1 - lam) * q_i
+
+            new_money.append(Q_new)
+
+        print(new_money)
+
+
 if __name__ == '__main__':
     ana_3 = analysis_3()
-    ana_3.scatter_k_mean()
